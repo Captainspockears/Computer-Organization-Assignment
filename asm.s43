@@ -1,0 +1,79 @@
+#include "msp430.h"                     ; #define controlled include file
+
+        NAME    main                    ; module name
+
+        PUBLIC  main                    ; make the main label vissible
+                                        ; outside this module
+        ORG     0FFFEh
+        DC16    init                    ; set reset vector to 'init' label
+
+        RSEG    CSTACK                  ; pre-declaration of segment
+        RSEG    CODE                    ; place program in 'CODE' segment
+
+init:   MOV     #SFE(CSTACK), SP        ; set up stack
+
+main:   NOP                             ; main program
+        MOV.W   #WDTPW+WDTHOLD,&WDTCTL  ; Stop watchdog timer
+        
+        CLR R5                          ; will hold largest value
+        CLR R6                          ; will hold smallest value
+        CLR R7                          ; will hold current value
+        CLR R8                          ; will hold loop count
+        CLR R9                          ; will hold memory space pointer
+        
+                                        ; PUSH 15 RANDOM NUMBERS        
+        PUSH.W #1234h                   ; 1 - smallest
+        PUSH.W #5645h                   ; 2
+        PUSH.W #4633h                   ; 3
+        PUSH.W #2343h                   ; 4
+        PUSH.W #7686h                   ; 5
+        PUSH.W #7476h                   ; 6
+        PUSH.W #3453h                   ; 7
+        PUSH.W #6768h                   ; 8
+        PUSH.W #2342h                   ; 9
+        PUSH.W #9089h                   ; 10 - largest
+        PUSH.W #7567h                   ; 11
+        PUSH.W #5634h                   ; 12
+        PUSH.W #4325h                   ; 13
+        PUSH.W #7867h                   ; 14
+        PUSH.W #6345h                   ; 15
+        
+        MOV	#0Eh, R8                ; Move E (14 in hex) to loop count
+        
+        POP.W   R7                      ; First iteration - pop stack
+        MOV     R7, R5                  ; Set large to stack value
+        MOV     R7, R6                  ; Set small to stack value
+        
+        L1:                             ; main loop (1-14)
+        
+        POP.W R7                        ; pop stack
+        
+        CMP R5, R7                      ; compare stack value with large
+        JC  great                       ; if larger jump to great
+        a1:
+        
+        CMP R7, R6                      ; compare stack value with large
+        JC  less                        ; if smaller jump to less
+        a2:
+        
+        DEC	R8                      ; decrease loop count
+        JNZ	L1                      ; loop till loop count is 0
+        
+        MOV R5, 0x0002(R9)              ; move large to 0002
+        MOV R6, 0x0004(R9)              ; move small to 0004
+        
+        JMP last
+        
+        great:                          ; make stack value as large
+        MOV R7, R5
+        JMP a1                          
+        
+        less:                           ; make stack value as small
+        MOV R7, R6
+        JMP a2
+       
+        last: 
+        
+        JMP $                           ; jump to current location '$'
+                                        ; (endless loop)
+        END
