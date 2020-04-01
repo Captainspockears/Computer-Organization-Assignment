@@ -9,3 +9,5 @@ Write a program to find the largest and smallest numbers in the given stack, con
 The Assembly level language code can be found [here](asm.s43). 
 
 The video of the code being executed can be found [here](https://youtu.be/WTTQuvXLCxI).
+
+The video of the explaination of the code logic can be found [here](https://youtu.be/BwGrFAHRKgA).
